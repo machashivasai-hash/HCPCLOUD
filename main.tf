@@ -9,3 +9,19 @@ count = 3
     Name = "MyFirstInstance"
   }
 }
+locals {
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install git -y
+    sudo amazon-linux-extras enable nginx1
+    sudo yum install -y nginx
+    cd /home/ec2-user
+    git clone https://github.com/Ironhack-Archive/online-clone-amazon.git
+    cp -r online-clone-amazon/* /usr/share/nginx/html/
+    systemctl enable nginx
+    systemctl start nginx
+  EOF
+}
+
+
