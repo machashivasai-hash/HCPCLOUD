@@ -1,27 +1,36 @@
-provider "aws" {
-  region = "eu-north-1"
+provider "aws"{
+region = "eu-north-1"
 }
-resource "aws_instance" "name" {
-count = 3
-  ami = "ami-0f50f13aefb6c0a5d"
-  instance_type = "t3.micro"
+
+resource "aws_instance" "one" {
+  ami                    = "ami-0f50f13aefb6c0a5d "
+  instance_type          = "t3.micro"
+  key_name               = "AMAZONWEB"
+  vpc_security_group_ids = ["sg-0fce156bf5c3972dd"]
   tags = {
-    Name = "MyFirstInstance"
+    Name = "teja"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum install httpd git -y",
+      "sudo systemctl start httpd",
+      "sudo cd /var/www/html",
+      "sudo git clone https://github.com/karishma1521success/swiggy-clone.git",
+      "sudo mv swiggy-clone/* .",
+      "sudo mv /home/ec2-user/* /var/www/html"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("C/Users/macha/Downloads/AMAZONWEB.pem")
+      host        = self.public_ip
+    }
   }
 }
-locals {
-  user_data = <<-EOF
-    #!/bin/bash
-    sudo yum update -y
-    sudo yum install git -y
-    sudo amazon-linux-extras enable nginx1
-    sudo yum install -y nginx
-    cd /home/ec2-user
-    git clone https://github.com/Ironhack-Archive/online-clone-amazon.git
-    cp -r online-clone-amazon/* /usr/share/nginx/html/
-    systemctl enable nginx
-    systemctl start nginx
-  EOF
-}
+
+
+
 
 
